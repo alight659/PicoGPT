@@ -166,7 +166,7 @@ class MOE(nn.Module):
 		flat_x = x.view(-1, x.size(-1))
 		flat_gate_output = gate_output.view(-1, gate_output.size(-1))
 
-		tokens_per_batch = batch_size * seq_len * self.top_k
+		tokens_per_batch = batch * seq_len * self.top_k
 		expert_capacity = int((tokens_per_batch / self.num_experts) * self.capacity_factor)
 
 		updates = torch.zeros_like(flat_x)
@@ -178,7 +178,7 @@ class MOE(nn.Module):
 			selected_indices = torch.nonzero(flat_mask).squeeze(-1)
 
 			limited_indices = selected_indices[:expert_capacity] if selected_indices.numel() > expert_capacity else selected_indices
-			if limited_indices.numel():
+			if limited_indices.numel() > 0:
 				expert_input = flat_x[limited_indices]
 				expert_output = expert(expert_input)
 
